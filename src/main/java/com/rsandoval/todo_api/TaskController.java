@@ -30,4 +30,23 @@ public class TaskController {
         // We then save it to the database.
         return taskRepository.save(task);
     }
+
+    // Handle DELETE requests to "/api/tasks/{id}"
+    @DeleteMapping("/{id}")
+    public void deleteTask(@PathVariable Long id){
+        taskRepository.deleteById(id);
+    }
+
+    // Handle PUT requests to "/api/tasks/{id}"
+    @PutMapping("/{id}")
+    public Task updateTask(@PathVariable Long id, @RequestBody Task updatedTaskData){
+        // 1. Find the existing task in the database, or throw an error if it's not found.
+        Task existingTask = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+        // 2. Update the fields of the *existing* task with the *new* data.
+        existingTask.setDescription(updatedTaskData.getDescription());
+        existingTask.setCompleted(updatedTaskData.isCompleted());
+        // 3. Save the updated task; save() will perform an UPDATE, not a new INSERT, due to existing ID
+        return taskRepository.save(existingTask);
+    }
 }
