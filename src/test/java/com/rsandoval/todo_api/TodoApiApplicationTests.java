@@ -15,6 +15,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,6 +34,23 @@ class TodoApiApplicationTests {
 	@Test
 	void contextLoads() {
 	}
+
+    @Test
+    void testDeleteTask_ShouldReturnOkAndCallDeleteById() throws Exception {
+        // -- ARRANGE -- Define the ID we want to delete
+        Long taskId = 1L;
+        // Stubbing a void method; Prevents the mock from throwing an error.
+        Mockito.doNothing().when(taskRepository).deleteById(taskId);
+
+        // -- ACT -- Perform a DELETE request to "api/tasks/1"
+        mockMvc.perform(delete("/api/tasks/" + taskId))
+                .andExpect(status().isOk());
+
+        // -- ASSERT -- Verify the interaction
+        // that mock repository's deleteById method was called exactly 1 time with the correct ID
+        Mockito.verify(taskRepository, Mockito.times(1)).deleteById(taskId);
+    }
+
     @Test
     void testCreateTask_ShouldCreateNewTask() throws Exception{
         // -- ARRANGE --
