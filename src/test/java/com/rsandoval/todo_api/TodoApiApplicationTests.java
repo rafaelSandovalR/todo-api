@@ -1,15 +1,19 @@
 package com.rsandoval.todo_api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,6 +33,38 @@ class TodoApiApplicationTests {
 	@Test
 	void contextLoads() {
 	}
+    @Test
+    void testCreateTask_ShouldCreateNewTask() throws Exception{
+        // -- ARRANGE --
+        // New task we are "sending" to the server
+        Task newTask = new Task();
+        newTask.setDescription("Watch Incendies");
+        newTask.setCompleted(false);
+        // Task we expect the server to "return" with assigned ID
+        Task savedTask = new Task();
+        savedTask.setId(1L);
+        savedTask.setDescription("Watch Incendies");
+        savedTask.setCompleted(false);
+
+        // Convert 'newTask' object into a JSON string
+        ObjectMapper objectMapper = new ObjectMapper();
+        String newTaskAsJson = objectMapper.writeValueAsString(newTask);
+
+        // When taskRepository.save() is called with *any* Task object THEN return our 'savedTask'
+        Mockito.when(taskRepository.save(ArgumentMatchers.any(Task.class)))
+                .thenReturn(savedTask);
+
+        // -- ACT -- Perform a POST request with our JSON and tell server we are sending JSON
+        mockMvc.perform(post("/api/tasks")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(newTaskAsJson))
+                // -- ASSERT -- We expect the results to be:
+                .andExpect(status().isCreated()) // a) An HTTP 201 Created status
+                // b) The returned JSON should have the new ID
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.description", is("Watch Incendies")))
+                .andExpect(jsonPath("$.completed", is(false)));
+    }
 
     @Test
     void testGetAllTasks_ShouldReturnListOfTasks() throws Exception {

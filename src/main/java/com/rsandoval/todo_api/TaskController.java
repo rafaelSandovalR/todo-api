@@ -1,5 +1,7 @@
 package com.rsandoval.todo_api;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,11 +26,14 @@ public class TaskController {
 
     // Handle POST requests to "/api/tasks"
     @PostMapping
-    public Task createTask(@RequestBody Task task){
+    public ResponseEntity<Task> createTask(@RequestBody Task task){
         // Spring Boot takes the JSON from the request
         // and converts it into a Task object (@RequestBody).
         // We then save it to the database.
-        return taskRepository.save(task);
+        Task savedTask = taskRepository.save(task);
+
+        // Return a ResponseEntity that wraps the saved task AND the "201 Created" status
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedTask);
     }
 
     // Handle DELETE requests to "/api/tasks/{id}"
