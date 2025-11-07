@@ -24,6 +24,12 @@ public class TaskController {
         return taskRepository.findAll();
     }
 
+    @GetMapping("/{id}")
+    public Task getTask(@PathVariable Long id){
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found with ID: " + id));
+    }
+
     // Handle POST requests to "/api/tasks"
     @PostMapping
     public ResponseEntity<Task> createTask(@RequestBody Task task){
@@ -47,7 +53,7 @@ public class TaskController {
     public Task updateTask(@PathVariable Long id, @RequestBody Task updatedTaskData){
         // 1. Find the existing task in the database, or throw an error if it's not found.
         Task existingTask = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Task not found with ID: " + id));
         // 2. Update the fields of the *existing* task with the *new* data.
         existingTask.setDescription(updatedTaskData.getDescription());
         existingTask.setCompleted(updatedTaskData.isCompleted());

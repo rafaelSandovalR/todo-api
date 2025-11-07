@@ -15,6 +15,7 @@ import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -123,6 +124,30 @@ class TodoApiApplicationTests {
                 .andExpect(jsonPath("$.description", is("Watch Incendies")))
                 .andExpect(jsonPath("$.completed", is(false)));
     }
+
+    @Test
+    void testGetTask_ShouldReturnTask() throws Exception {
+        // -- ARRANGE --
+        Long taskId = 1L;
+        Task savedTask = new Task();
+        savedTask.setId(taskId);
+        savedTask.setDescription("Learn DevOps Pipeline");
+        savedTask.setCompleted(true);
+
+        // Train Mockito; Stub findById()
+        Mockito.when(taskRepository.findById(taskId)).thenReturn(Optional.of(savedTask));
+
+        // -- ACT --
+        mockMvc.perform(get("/api/tasks/" + taskId))
+                .andDo(print())
+                // -- ASSERT --
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.description", is("Learn DevOps Pipeline")))
+                .andExpect(jsonPath("$.completed", is(true)));
+    }
+
+
 
     @Test
     void testGetAllTasks_ShouldReturnListOfTasks() throws Exception {
