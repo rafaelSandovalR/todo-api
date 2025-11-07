@@ -11,11 +11,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -34,6 +33,47 @@ class TodoApiApplicationTests {
 	@Test
 	void contextLoads() {
 	}
+
+    @Test
+    void testUpdateTask_ShouldUpdateAndReturnTask() throws Exception{
+        Long taskId = 1L;
+        // -- ARRANGE -- Simulate  1) 'existingTask': in the database
+        Task existingTask = new Task();
+        existingTask.setId(taskId);
+        existingTask.setDescription("Finish Rooney Drawing");
+        existingTask.setCompleted(false);
+        // 2) an 'updatedTask': new data being sent
+        Task updatedTask = new Task();
+        updatedTask.setDescription("Finish Rooney Drawing First Draft");
+        updatedTask.setCompleted(true);
+        // 3) the final object we expect the 'save' method to return
+        Task savedTask = new Task();
+        savedTask.setId(taskId);
+        savedTask.setDescription("Finish Rooney Drawing First Draft");
+        savedTask.setCompleted(true);
+
+        // Convert the updated data object into a JSON string
+        ObjectMapper objectMapper = new ObjectMapper();
+        String updatedTaskAsJson = objectMapper.writeValueAsString(updatedTask);
+
+        // Stub 1: WHEN findById(1L) is called, THEN return our existingTask
+        Mockito.when(taskRepository.findById(taskId))
+                .thenReturn(Optional.of(existingTask)); // Must wrap in Optional.of() because that is what JpaRepository returns
+        // Stub 2: When save() is called with *any* Task, THEN return our final savedTask
+        Mockito.when(taskRepository.save(ArgumentMatchers.any(Task.class)))
+                .thenReturn(savedTask);
+
+        // -- ACT -- Perform a PUT request to "/api/tasks/1" with the new JSON
+        mockMvc.perform(put("/api/tasks/" + taskId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updatedTaskAsJson))
+                // -- ASSERT -- We expect the results to be:
+                .andExpect(status().isOk()) // a) An HTTP 200 OK status
+                // b) The JSON response should have the *updated* info
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.description", is("Finish Rooney Drawing First Draft")))
+                .andExpect(jsonPath("$.completed", is(true)));
+    }
 
     @Test
     void testDeleteTask_ShouldReturnOkAndCallDeleteById() throws Exception {
@@ -74,8 +114,8 @@ class TodoApiApplicationTests {
 
         // -- ACT -- Perform a POST request with our JSON and tell server we are sending JSON
         mockMvc.perform(post("/api/tasks")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(newTaskAsJson))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(newTaskAsJson))
                 // -- ASSERT -- We expect the results to be:
                 .andExpect(status().isCreated()) // a) An HTTP 201 Created status
                 // b) The returned JSON should have the new ID
