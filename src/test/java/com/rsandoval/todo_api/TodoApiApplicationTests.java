@@ -126,6 +126,17 @@ class TodoApiApplicationTests {
     }
 
     @Test
+    void testGetTask_WhenNotFound_ShouldReturn404() throws Exception {
+        Long nonExistentId = 999L;
+        Mockito.when(taskRepository.findById(nonExistentId))
+                .thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/tasks/" + nonExistentId))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void testGetTask_ShouldReturnTask() throws Exception {
         // -- ARRANGE --
         Long taskId = 1L;
@@ -146,8 +157,6 @@ class TodoApiApplicationTests {
                 .andExpect(jsonPath("$.description", is("Learn DevOps Pipeline")))
                 .andExpect(jsonPath("$.completed", is(true)));
     }
-
-
 
     @Test
     void testGetAllTasks_ShouldReturnListOfTasks() throws Exception {
