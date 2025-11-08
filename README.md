@@ -1,3 +1,5 @@
+[![Docker Hub Pulls](https://img.shields.io/docker/pulls/rsandoval0408/todo-api)](https://hub.docker.com/r/rsandoval0408/todo-api)
+
 # Spring Boot To-Do List REST API
 
 This is a complete, backend REST API for a simple To-Do List application. It is built with Java and Spring Boot and follows professional API design principles by supporting all four **CRUD** (Create, Read, Update, Delete) operations.
