@@ -1,52 +1,52 @@
 pipeline {
-    // 1. "agent" defines where this pipeline runs.
-    // "any" means it will run on the main Jenkins server.
-    agent any
+    // We set the "agent" to "none" at the top, because
+    // each stage will define its own agent.
+    agent none
 
-    // 2. "environment" sets up variables
     environment {
-        // Get the credentials we just stored in Jenkins
         DOCKER_HUB_CREDS = credentials('dockerhub-creds')
-
-        // Define our image name
         IMAGE_NAME = "rsandoval0408/todo-api"
     }
 
-    // 3. "stages" are the steps of our assembly line
     stages {
+        // --- STAGE 1: Run Tests ---
+        // This stage needs Java and Maven.
         stage('Run Tests') {
+            agent {
+                // Use an official Maven image. It has Java and Maven pre-installed.
+                docker { image 'maven:3.9.6-eclipse-temurin-17' }
+            }
             steps {
-                // The Jenkins image we're using (lts-jdk17) already has Java.
-                // We just need to make the Maven wrapper executable.
-                sh 'chmod +x mvnw'
-
-                // Run all the JUnit tests
-                sh './mvnw test'
+                // We're inside a container, so we just run the Maven command
+                sh 'mvn test'
             }
         }
 
-        stage('Build Docker Image') {
-            // This stage only runs if 'Run Tests' was successful.
-            steps {
-                // Because we mounted the docker.sock, Jenkins can
-                // run docker commands directly.
-                sh "docker build -t ${IMAGE_NAME} ."
+        // --- STAGE 2: Build & Push Image ---
+        // This stage needs the Docker client.
+        stage('Build and Push Docker Image') {
+            // It only runs if 'Run Tests' was successful
+            agent {
+                // Use an official Docker image. It has the Docker client pre-installed.
+                docker { image 'docker:latest' }
             }
-        }
-
-        stage('Push to Docker Hub') {
-            // This stage only runs if 'Build Docker Image' was successful.
             steps {
-                // Use the environment variables from the credentials() helper
-                // to log in. $DOCKER_HUB_CREDS_PSW is the password.
+                // Because we mounted the "docker.sock" to our Jenkins container,
+                // *this* container can "borrow" that connection and
+                // control the host's Docker engine.
+
+                // 1. Log in to Docker Hub
+                // We use the credentials we stored in Jenkins
                 sh "echo $DOCKER_HUB_CREDS_PSW | docker login -u $DOCKER_HUB_CREDS_USR --password-stdin"
 
-                // Push the image
+                // 2. Build the image
+                sh "docker build -t ${IMAGE_NAME} ."
+
+                // 3. Push the image
                 sh "docker push ${IMAGE_NAME}"
             }
             post {
-                // "post" runs after the stage, no matter what.
-                // Always log out for security.
+                // Always log out for security
                 always {
                     sh 'docker logout'
                 }
