@@ -29,14 +29,20 @@ pipeline {
                 // Now we can use the 'docker' command because
                 // our Jenkins server has it (from the 'tools' block)
 
-                // 1. Log in to Docker Hub
-                sh "echo $DOCKER_HUB_CREDS_PSW | docker login -u $DOCKER_HUB_CREDS_USR --password-stdin"
+                // We wrap our secure steps in the withCredentials helper
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
 
-                // 2. Build the image
-                sh "docker build -t ${IMAGE_NAME} ."
+                    // 1. Log in to Docker Hub
+                    // These variables are now securely provided by Jenkins
+                    // and will not be printed to the log.
+                    sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
 
-                // 3. Push the image
-                sh "docker push ${IMAGE_NAME}"
+                    // 2. Build the image
+                    sh "docker build -t ${IMAGE_NAME} ."
+
+                    // 3. Push the image
+                    sh "docker push ${IMAGE_NAME}"
+                }
             }
             post {
                 always {
