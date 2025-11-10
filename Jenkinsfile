@@ -1,5 +1,12 @@
 pipeline {
-    agent none
+    // 1. Run on the main agent (our Jenkins server)
+    agent any
+
+    // 2. Define the tools we just configured in the GUI
+    tools {
+        jdk 'jdk17'      // This tells the pipeline: "Use the JDK we named 'jdk17'"
+        dockerTool 'docker-latest' // "Use the Docker tool we named 'docker-latest'"
+    }
 
     environment {
         DOCKER_HUB_CREDS = credentials('dockerhub-creds')
@@ -8,26 +15,20 @@ pipeline {
 
     stages {
 
-        // --- STAGE 1: Run Tests ---
-        // This stage runs inside a *temporary* Maven container
         stage('Run Tests') {
-            agent {
-                docker { image 'maven:3.9.6-eclipse-temurin-17' }
-            }
             steps {
-                // We use 'mvnw' (Maven Wrapper) to be safe
+                // Now that we have a JDK, we can use Maven
                 sh 'chmod +x mvnw'
                 sh './mvnw test'
             }
         }
 
-        // --- STAGE 2: Build & Push Image ---
-        // This stage runs inside a *temporary* Docker container
         stage('Build and Push Docker Image') {
-            agent {
-                docker { image 'docker:latest' }
-            }
+            // This stage only runs if 'Run Tests' was successful
             steps {
+                // Now we can use the 'docker' command because
+                // our Jenkins server has it (from the 'tools' block)
+
                 // 1. Log in to Docker Hub
                 sh "echo $DOCKER_HUB_CREDS_PSW | docker login -u $DOCKER_HUB_CREDS_USR --password-stdin"
 
