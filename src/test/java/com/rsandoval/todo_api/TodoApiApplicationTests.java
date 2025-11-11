@@ -159,6 +159,44 @@ class TodoApiApplicationTests {
     }
 
     @Test
+    void testGetTasksByStatus_ShouldReturnCompletedTasks() throws Exception {
+        // -- ARRANGE -- Create mock data
+        Task task1 = new Task();
+        task1.setId(1L);
+        task1.setDescription("Completed task");
+        task1.setCompleted(true);
+
+        // Teach mock repository
+        Mockito.when(taskRepository.findByCompleted(true)).thenReturn(List.of(task1));
+
+        // -- ACT -- Perform a GET request to the new endpoint
+        mockMvc.perform(get("/api/tasks/search?completed=true"))
+                // -- ASSERT --
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()", is(1)))
+                .andExpect(jsonPath("$[0].description", is("Completed task")))
+                .andExpect(jsonPath("$[0].completed", is(true)));
+    }
+
+    @Test
+    void testGetTasksByStatus_ShouldReturnIncompleteTasks() throws Exception {
+        Task task2 = new Task();
+        task2.setId(2L);
+        task2.setDescription("Incomplete task");
+        task2.setCompleted(false);
+
+        Mockito.when(taskRepository.findByCompleted(false)).thenReturn(List.of(task2));
+
+        mockMvc.perform(get("/api/tasks/search?completed=false"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()", is(1)))
+                .andExpect(jsonPath("$[0].description", is("Incomplete task")))
+                .andExpect(jsonPath("$[0].completed", is(false)));
+    }
+
+    @Test
     void testGetAllTasks_ShouldReturnListOfTasks() throws Exception {
         // -- ARRANGE-- Create fake data
         Task task1 = new Task();

@@ -30,6 +30,12 @@ public class TaskController {
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + id));
     }
 
+    // Handle GET requests to "/api/tasks/search?completed=..."
+    @GetMapping("/search")
+    public List<Task> getTasksByStatus(@RequestParam boolean completed){
+        return taskRepository.findByCompleted(completed);
+    }
+
     // Handle POST requests to "/api/tasks"
     @PostMapping
     public ResponseEntity<Task> createTask(@RequestBody Task task){
