@@ -9,7 +9,6 @@ pipeline {
     }
 
     environment {
-        DOCKER_HUB_CREDS = credentials('dockerhub-creds')
         IMAGE_NAME = "rsandoval0408/todo-api"
     }
 
@@ -33,10 +32,10 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
 
                     // 1. Log in to Docker Hub
-                    // These variables are now securely provided by Jenkins
-                    // and will not be printed to the log.
-                    sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                    // Use single quotes to securely pass shell variables
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
 
+                    // Use double quotes below to allow Groovy interpolation
                     // 2. Build the image
                     sh "docker build -t ${IMAGE_NAME} ."
 
