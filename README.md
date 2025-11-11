@@ -14,28 +14,35 @@ This project is fully unit-tested at the web layer (`TaskController`) using `Moc
 * **Database:** Spring Data JPA (with `JpaRepository`)
 * **Testing** JUnit 5, Spring Boot Test (`@WebMvcTest`), Mockito, Hamcrest
 * **Build:** Maven (dependencies managed in `pom.xml`)
-* **Database:** H2 (In-memory)
+* **Database:** PostgreSQL (Persistent)
+* **Containerization:** Docker
 * **Server:** Embedded Tomcat
 
-## How to Run This Project
+## How to Run (Developer Setup)
+This is a backend API, and it **requires a running PostgreSQL database** to connect to. The easiest way to run one locally is by using Docker.
 
-1. **Clone the repository**
+### 1. **Start the PostgreSQL database**
+Before running the app, you must start the Postgres database container. If you don't have it, run this command in your terminal first to get it:
 ```bash
+  docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=mysecretpassword -v postgres_data:/var/lib/postgresql --name my-postgres-db postgres:latest
+```
+If you already have the container, just make sure its running
+```bash
+  docker start my-postgres-db
+```
+### 2.  **Run the Spring Boot Application:**
+1. **Clone the Repository:**
+    ```bash
     git clone https://github.com/rafaelSandovalR/todo-api.git
     cd todo-api
-```
-2.  **Run from IntelliJ (Easiest Way):**
-    * Open the `pom.xml` file as a project in IntelliJ IDEA.
-    * Maven will automatically download all the required dependencies.
-    * Navigate to `src/main/java/com/rsandoval/todoapi/TodoApiApplication.java` and click the green "play" arrow to run the `main` method.
-    * The server will start on `http://localhost:8080`.
+    ```
+2. **Run from IntelliJ (Easiest Way):**
+   * Open the `pom.xml` file as a project in IntelliJ IDEA.
+   * Maven will automatically download all the required dependencies.
+   * The `application.properties` file is already configured to connect to your `my-postgres-db` container.
+   * Navigate to `src/main/java/com/rsandoval/todo_api/TodoApiApplication.java` and click the green "play" arrow to run the `main` method.
+   * The server will start on `http://localhost:8080`.
 
-
-3.  **(Optional) View the Live Database:**
-    * While the application is running, open your browser and navigate to **`http://localhost:8080/h2-console`**.
-    * **JDBC URL:** Look in your IntelliJ console for the H2 JDBC URL (it will look like `jdbc:h2:mem:some-unique-id`).
-    * Paste that URL into the "JDBC URL" field on the login page and click "Connect."
-    * You can now see the `TASK` table and run SQL queries live!
 
 ## API Endpoints (How to Use)
 You can use a tool like [Postman](https://www.postman.com/) or IntelliJ's HTTP Client (`test.http`) to interact with this API.
