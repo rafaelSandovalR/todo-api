@@ -80,6 +80,27 @@ You can use a tool like [Postman](https://www.postman.com/) or IntelliJ's HTTP C
 ]
 ```
 ---
+### Get Tasks by Status (Search)
+**`GET`** `/api/tasks/search` Returns a JSON list of all tasks that match a given status.
+
+**Example Request:** `GET /api/tasks/search?completed=true`
+
+**Response:**
+```json
+[
+  {
+    "id": 2,
+    "description": "Walk the dog",
+    "completed": true
+  },
+  {
+    "id": 4,
+    "description": "Feed the dog",
+    "completed": true
+  }
+]
+```
+---
 ### Get a Single Task
 **`GET`** `/api/tasks/{id}` Returns a single task by its ID.
 
