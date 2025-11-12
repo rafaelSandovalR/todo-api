@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 // Testing only the TaskController
 @WebMvcTest(TaskController.class)
-class TodoApiApplicationTests {
+class TaskControllerUnitTests {
 
     // Spring will automatically inject ("autowire") our "fake postman" (MockMvc)
     @Autowired
@@ -30,10 +30,6 @@ class TodoApiApplicationTests {
     // Spring will create a mock version of our repository
     @MockitoBean
     private TaskRepository taskRepository;
-
-	@Test
-	void contextLoads() {
-	}
 
     @Test
     void testUpdateTask_ShouldUpdateAndReturnTask() throws Exception{
