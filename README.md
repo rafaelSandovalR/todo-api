@@ -1,4 +1,4 @@
-[![Docker Hub Pulls](https://img.shields.io/docker/pulls/rsandoval0408/todo-api)](https://hub.docker.com/r/rsandoval0408/todo-api)
+[![Docker Hub Pulls](https://img.shields.io/docker/pulls/rsandoval0408/todo-api?style=flat-square)](https://hub.docker.com/r/rsandoval0408/todo-api)
 
 # Spring Boot To-Do List REST API
 
@@ -18,7 +18,7 @@ This project is fully unit-tested at the web layer (`TaskController`) using `Moc
 * **Containerization:** Docker
 * **Server:** Embedded Tomcat
 
-## How to Run (Developer Setup)
+## How to Run
 This is a backend API, and it **requires a running PostgreSQL database** to connect to. The easiest way to run one locally is by using Docker.
 
 ### 1. **Start the PostgreSQL database**
@@ -30,7 +30,22 @@ If you already have the container, just make sure its running
 ```bash
   docker start my-postgres-db
 ```
-### 2.  **Run the Spring Boot Application:**
+### 2. (Option A): **From Docker Hub**
+This is the fastest way to run the application. This method assumes you have [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed.
+
+1. **Run the To-Do API Container**
+    * Once the database is running, pull and run the latest image from Docker Hub with this command:
+         ```bash
+         docker run -d -p 8080:8080 \
+         -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/postgres \
+         -e SPRING_DATASOURCE_USERNAME=postgres \
+         -e SPRING_DATASOURCE_PASSWORD=mysecretpassword \
+         --name todo-api-container \
+         rsandoval0408/todo-api:latest
+         ```
+    * The server is now running and accessible at `http://localhost:8080`.
+
+### 2. (Option B): **Run from Source (Developer Setup)**
 1. **Clone the Repository:**
     ```bash
     git clone https://github.com/rafaelSandovalR/todo-api.git
@@ -42,6 +57,8 @@ If you already have the container, just make sure its running
    * The `application.properties` file is already configured to connect to your `my-postgres-db` container.
    * Navigate to `src/main/java/com/rsandoval/todo_api/TodoApiApplication.java` and click the green "play" arrow to run the `main` method.
    * The server will start on `http://localhost:8080`.
+
+
 
 
 ## API Endpoints (How to Use)
