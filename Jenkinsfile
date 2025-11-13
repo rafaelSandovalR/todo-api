@@ -35,17 +35,21 @@ pipeline {
                     // Use single quotes to securely pass shell variables
                     sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
 
+                    // 1. Build the image using docker-compose.yml blueprint
+                    sh 'docker-compose build'
+
                     // Use double quotes below to allow Groovy interpolation
-                    // 2. Build the image
-                    sh "docker build -t ${IMAGE_NAME} ."
+                    // 2. Tag the specific image that Compose just built
+                    sh "docker tag workspace-app ${IMAGE_NAME}:latest"
 
                     // 3. Push the image
-                    sh "docker push ${IMAGE_NAME}"
+                    sh "docker push ${IMAGE_NAME}:latest"
                 }
             }
             post {
                 always {
                     sh 'docker logout'
+                    sh 'docker-compose down'
                 }
             }
         }
