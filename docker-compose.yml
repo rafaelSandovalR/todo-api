@@ -12,6 +12,7 @@ services:
       - postgres_data:/var/lib/postgresql
     environment:
       - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=tasks
 
   # 2. The Application Service
   app:
@@ -23,7 +24,7 @@ services:
       - db # CRITICAL. Will not start app until the db service is healthy
     environment:
       # Docker Compose gives us this private, internal 'db' hostname.
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/tasks
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=mysecretpassword
 
