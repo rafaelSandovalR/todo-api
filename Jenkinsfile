@@ -1,11 +1,8 @@
 pipeline {
-    // 1. Run on the main agent (our Jenkins server)
     agent any
-
-    // 2. Define the tools we just configured in the GUI
     tools {
-        jdk 'jdk17'      // This tells the pipeline: "Use the JDK we named 'jdk17'"
-        dockerTool 'docker-latest' // "Use the Docker tool we named 'docker-latest'"
+        jdk `jdk17'
+        dockerTool 'docker-latest'
     }
 
     environment {
@@ -13,36 +10,42 @@ pipeline {
     }
 
     stages {
-
-        stage('Run Tests') {
+        // --- STAGE 1: Unit Tests ---
+        stage('Run Unit Tests') {
             steps {
-                // Now that we have a JDK, we can use Maven
                 sh 'chmod +x mvnw'
-                sh './mvnw test'
+                sh './mvnw test -Dtest=TaskControllerUnitTests'
             }
         }
 
-        stage('Build and Push Docker Image') {
-            // This stage only runs if 'Run Tests' was successful
+        // --- STAGE 2: Integration Tests ---
+        stage('Run Integration Tests') {
             steps {
-                // Now we can use the 'docker' command because
-                // our Jenkins server has it (from the 'tools' block)
+                // Start Build (db only required for integration test)
+                sh 'docker-compose up -d db'
+                sh 'sleep 10'
+                sh './mvnw test -Dtest=TaskApiIntegrationTests'
+            }
+            post {
+                always {
+                    // CRITICAL: Tears down DB so the next stage starts clean
+                    sh 'docker-compose down -v'
+                }
+            }
+        }
 
-                // We wrap our secure steps in the withCredentials helper
+        // --- STAGE 3: Build & Push (Only runs if tests pass) ---
+        stage('Build and Publish Image') {
+            steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-
-                    // 1. Log in to Docker Hub
-                    // Use single quotes to securely pass shell variables
+                    // Login
                     sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
 
-                    // 1. Build the image using docker-compose.yml blueprint
-                    sh 'docker-compose build'
+                    // Finish Build (build app only since db is already built)
+                    sh 'docker-compose build app'
 
-                    // Use double quotes below to allow Groovy interpolation
-                    // 2. Tag the specific image that Compose just built
+                    // Tag and Push
                     sh "docker tag workspace-app ${IMAGE_NAME}:latest"
-
-                    // 3. Push the image
                     sh "docker push ${IMAGE_NAME}:latest"
                 }
             }
