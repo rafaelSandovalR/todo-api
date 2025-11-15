@@ -7,6 +7,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "rsandoval0408/todo-api"
+        TEST_DB_NAME = "todo_test"
     }
 
     stages {
@@ -20,10 +21,14 @@ pipeline {
 
         // --- STAGE 2: Integration Tests ---
         stage('Run Integration Tests') {
+            environment {
+                SPRING_DATASOURCE_URL = "jdbc:postgresql://host.docker.internal:5432/${TEST_DB_NAME}"
+            }
             steps {
                 // Start Build (db only required for integration test)
                 sh 'docker-compose up -d db'
                 sh 'sleep 10'
+                //sh "docker exec my-postpres-db psql -U postgres -d postgres -c 'CREATE DATABASE ${TEST_DB_NAME};'"
                 sh './mvnw test -Dtest=TaskApiIntegrationTests'
             }
             post {
@@ -36,9 +41,6 @@ pipeline {
 
         // --- STAGE 3: Build & Push (Only runs if tests pass) ---
         stage('Build and Publish Image') {
-            environment {
-                SPRING_DATASOURCE_URL = "jdbc:postgresql://host.docker.internal:5432/todo_test"
-            }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     // Login
