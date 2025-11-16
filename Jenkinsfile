@@ -36,9 +36,6 @@ pipeline {
 
         // --- STAGE 3: Build & Push (Only runs if tests pass) ---
         stage('Build and Publish Image') {
-            environment {
-                SPRING_DATASOURCE_URL = "jdbc:postgresql://host.docker.internal:5432/todo_test"
-            }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     // Login
@@ -48,7 +45,7 @@ pipeline {
                     sh 'docker-compose build app'
 
                     // Tag and Push
-                    sh "docker tag todo-api-pipeline-app ${IMAGE_NAME}:latest"
+                    sh "docker tag workspace-app ${IMAGE_NAME}:latest"
                     sh "docker push ${IMAGE_NAME}:latest"
                 }
             }
