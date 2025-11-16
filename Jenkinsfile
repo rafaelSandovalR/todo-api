@@ -28,7 +28,7 @@ pipeline {
                 // Start Build (db only required for integration test)
                 sh 'docker-compose up -d db'
                 sh 'sleep 10'
-                sh "docker exec my-postgres-db psql -U postgres -d postgres -c 'CREATE DATABASE ${TEST_DB_NAME};'"
+                //sh "docker exec my-postpres-db psql -U postgres -d postgres -c 'CREATE DATABASE ${TEST_DB_NAME};'"
                 sh './mvnw test -Dtest=TaskApiIntegrationTests'
             }
             post {
