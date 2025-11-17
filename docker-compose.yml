@@ -11,7 +11,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
       # Map local script (create test db) to the container's init folder
-      #- ./create-test-database.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./create-test-database.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       - POSTGRES_PASSWORD=mysecretpassword
       - POSTGRES_DB=tasks
