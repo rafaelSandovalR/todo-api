@@ -22,7 +22,7 @@ pipeline {
         // --- STAGE 2: Integration Tests ---
         stage('Run Integration Tests') {
             environment {
-                SPRING_DATASOURCE_URL = "jdbc:postgresql://host.docker.internal:5432/${TEST_DB_NAME}""
+                SPRING_DATASOURCE_URL = "jdbc:postgresql://host.docker.internal:5432/${TEST_DB_NAME}"
             }
             steps {
                 // Start Build (db only required for integration test)
