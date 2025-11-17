@@ -48,7 +48,7 @@ pipeline {
                     sh 'docker-compose build app'
 
                     // Tag and Push
-                    sh "docker tag workspace-app ${IMAGE_NAME}:latest"
+                    sh "docker tag todo-api-pipeline-app ${IMAGE_NAME}:latest"
                     sh "docker push ${IMAGE_NAME}:latest"
                 }
             }
