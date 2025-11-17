@@ -19,44 +19,81 @@ This project is fully unit-tested at the web layer (`TaskController`) using `Moc
 * **Server:** Embedded Tomcat
 
 ## How to Run
-This is a backend API, and it **requires a running PostgreSQL database** to connect to. The easiest way to run one locally is by using Docker.
 
-### 1. **Start the PostgreSQL database**
-Before running the app, you must start the Postgres database container. If you don't have it, run this command in your terminal first to get it:
-```bash
-  docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=mysecretpassword -v postgres_data:/var/lib/postgresql --name my-postgres-db postgres:latest
-```
-If you already have the container, just make sure its running
-```bash
-  docker start my-postgres-db
-```
-### 2. (Option A): **From Docker Hub**
-This is the fastest way to run the application. This method assumes you have [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed.
+This application requires a PostgreSQL database and the Spring Boot API server. The fastest, most reliable way to run the full stack is using **Docker Compose**.
 
-1. **Run the To-Do API Container**
-    * Once the database is running, pull and run the latest image from Docker Hub with this command:
-         ```bash
-         docker run -d -p 8080:8080 \
-         -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/postgres \
-         -e SPRING_DATASOURCE_USERNAME=postgres \
-         -e SPRING_DATASOURCE_PASSWORD=mysecretpassword \
-         --name todo-api-container \
-         rsandoval0408/todo-api:latest
-         ```
-    * The server is now running and accessible at `http://localhost:8080`.
+### Option 1: Quick Start (No Code Required)
 
-### 2. (Option B): **Run from Source (Developer Setup)**
-1. **Clone the Repository:**
+You do not need Java, Maven, or the source code installed. You only need [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+
+1.  **Create a folder** anywhere on your computer.
+2.  Inside that folder, create a file named **`docker-compose.yml`**.
+3.  Paste the following content into it:
+
+    ```yaml
+    version: '3.8'
+    services:
+      # 1. The Database Service
+      db:
+        image: postgres:latest
+        container_name: my-postgres-db
+        ports:
+          - "5432:5432"
+        volumes:
+          - postgres_data:/var/lib/postgresql
+        environment:
+          - POSTGRES_PASSWORD=mysecretpassword
+          - POSTGRES_DB=tasks
+
+      # 2. The API Application Service
+      app:
+        # Pulls the pre-built image from Docker Hub
+        image: rsandoval0408/todo-api:latest
+        container_name: todo-api-container
+        ports:
+          - "8080:8080"
+        depends_on:
+          - db
+        environment:
+          # Connects to the 'db' service on the internal Docker network
+          - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/tasks
+          - SPRING_DATASOURCE_USERNAME=postgres
+          - SPRING_DATASOURCE_PASSWORD=mysecretpassword
+
+    volumes:
+      postgres_data:
+    ```
+
+4.  Open your terminal in that folder and run:
+    ```bash
+    docker-compose up
+    ```
+    *(Or `docker compose up` depending on your version)*
+
+The application will start, connect to the database automatically, and be accessible at `http://localhost:8080`.
+
+---
+
+### Option 2: Developer Setup (Run from Source)
+
+Use this method if you want to modify the code or run the application inside IntelliJ IDEA.
+
+1.  **Clone the repository:**
     ```bash
     git clone https://github.com/rafaelSandovalR/todo-api.git
     cd todo-api
     ```
-2. **Run from IntelliJ (Easiest Way):**
-   * Open the `pom.xml` file as a project in IntelliJ IDEA.
-   * Maven will automatically download all the required dependencies.
-   * The `application.properties` file is already configured to connect to your `my-postgres-db` container.
-   * Navigate to `src/main/java/com/rsandoval/todo_api/TodoApiApplication.java` and click the green "play" arrow to run the `main` method.
-   * The server will start on `http://localhost:8080`.
+
+2.  **Start the Database:**
+    You still need a running database. You can use the `docker-compose.yml` included in the source code to spin up *just* the database:
+    ```bash
+    docker-compose up -d db
+    ```
+
+3.  **Run the App:**
+    * Open the project in IntelliJ IDEA.
+    * Run the `TodoApiApplication.main()` method.
+    * The app is configured in `application.properties` to connect to the database running on `localhost:5432`.
 
 
 
