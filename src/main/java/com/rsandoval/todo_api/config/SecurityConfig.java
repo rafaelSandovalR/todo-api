@@ -1,4 +1,4 @@
-package com.rsandoval.todo_api;
+package com.rsandoval.todo_api.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

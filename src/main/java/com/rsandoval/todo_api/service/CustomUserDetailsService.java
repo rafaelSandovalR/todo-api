@@ -1,5 +1,7 @@
-package com.rsandoval.todo_api;
+package com.rsandoval.todo_api.service;
 
+import com.rsandoval.todo_api.model.User;
+import com.rsandoval.todo_api.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

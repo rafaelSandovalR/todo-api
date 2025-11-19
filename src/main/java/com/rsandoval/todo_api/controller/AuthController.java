@@ -1,5 +1,10 @@
-package com.rsandoval.todo_api;
+package com.rsandoval.todo_api.controller;
 
+import com.rsandoval.todo_api.dto.LoginRequest;
+import com.rsandoval.todo_api.dto.RegisterRequest;
+import com.rsandoval.todo_api.model.User;
+import com.rsandoval.todo_api.repository.UserRepository;
+import com.rsandoval.todo_api.service.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -1,5 +1,6 @@
-package com.rsandoval.todo_api;
+package com.rsandoval.todo_api.repository;
 
+import com.rsandoval.todo_api.model.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

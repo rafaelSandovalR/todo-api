@@ -1,5 +1,7 @@
 package com.rsandoval.todo_api;
 
+import com.rsandoval.todo_api.model.Task;
+import com.rsandoval.todo_api.repository.TaskRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

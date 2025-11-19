@@ -1,4 +1,4 @@
-package com.rsandoval.todo_api;
+package com.rsandoval.todo_api.model;
 
 import jakarta.persistence.*;
 
