@@ -2,6 +2,10 @@ package com.rsandoval.todo_api;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,10 +18,17 @@ public class AuthController {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
 
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthController(UserRepository userRepository,
+                          PasswordEncoder passwordEncoder,
+                          JwtService jwtService,
+                          AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/register")
@@ -35,5 +46,20 @@ public class AuthController {
         userRepository.save(newUser);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+        // Checks the username and hashed password against the db
+        // If it fails, it throws a 403 Forbidden exception
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.username(), request.password())
+        );
+        // If successful, grab the UserDetails object
+        UserDetails user = (UserDetails) authentication.getPrincipal();
+        // Generate token
+        String token = jwtService.generateToken(user);
+        // Hand it to the user
+        return ResponseEntity.ok(token);
     }
 }
