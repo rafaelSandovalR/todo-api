@@ -14,6 +14,7 @@ This project is fully unit-tested at the web layer (`TaskController`) using `Moc
 * **Database:** Spring Data JPA (with `JpaRepository`)
 * **Testing** JUnit 5, Spring Boot Test (`@WebMvcTest`), Mockito, Hamcrest
 * **Build:** Maven (dependencies managed in `pom.xml`)
+* **Security** Spring Security, JWT (JSON Web Tokens), BCrypt
 * **Database:** PostgreSQL (Persistent)
 * **Containerization:** Docker
 * **Server:** Embedded Tomcat
@@ -100,6 +101,44 @@ Use this method if you want to modify the code or run the application inside Int
 
 ## API Endpoints (How to Use)
 You can use a tool like [Postman](https://www.postman.com/) or IntelliJ's HTTP Client (`test.http`) to interact with this API.
+
+**IMPORTANT:** All `/api/tasks` endpoints are secured. You **must** include a valid JWT in the `Authorization` header of your request:
+`Authorization: Bearer <your_token>`
+
+---
+### Register a User
+**`POST`** `/api/auth/register` 
+Creates a new user account. The password will be securely encrypted.
+
+**Request Body:**
+```json
+{
+  "username": "new_user",
+  "password": "secretpassword"
+}
+```
+
+**Response:**
+* **Status:** `201 Created`
+* **Body:** `"User registered successfully"`
+
+---
+### Login(Get Token)
+**`POST`** `/api/auth/login` Authenticates a user and returns a JWT(JSON Web Token). Copy this token to use in all other requests.
+
+**Request Body:**
+```json
+{
+  "username": "new_user",
+  "password": "secretpassword"
+}
+```
+
+**Response:**
+* **JWT:** `eyJhbGciOiJIUzI1NiJ9.eyJzdWIiO...`
+
+---
+### The following examples require the JWT in the Authorization header (Bearer Token)
 
 ---
 ### Create a Task
