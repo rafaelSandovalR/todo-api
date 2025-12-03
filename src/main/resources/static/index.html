@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .hidden { display: none; }
+        .error { color: red; }
+        .task {
+            border-bottom: 1px solid #ccc;
+            padding: 10x 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        button { cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1>My Secure To-do List</h1>
+
+    <div id="login-section">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username" />
+        <input type="password" id="password" placeholder="Password" />
+        <button onclick="login()">Log In</button>
+        <p id="login=error" class="error"></p>
+    </div>
+
+    <div id="app-section" class="hidden">
+        <h2 id="welcome-msg"></h2>
+        <button onclick="logout()">Log Out</button>
+
+        <hr/>
+
+        <h3>Add Task</h3>
+        <input type="text" id="new-task-desc" placeholder="What needs to be done?" />
+        <button onclick="addTask()">Add</button>
+
+        <h3>My Tasks</h3>
+        <div id="task-list"></div>
+    </div>
+
+    <script>
+        let authToken = null;
+        const API_URL = 'http://localhost:8080/api';
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    authToken = await response.text();
+
+                    document.getElementById('login-section').classList.add('hidden');
+                    document.getElementById('app-section').classList.remove('hidden');
+                    document.getElementById('welcome-msg').innerText = `Hello, ${username}!`;
+
+                    loadTasks();
+                } else {
+                    document.getElementById('login-error').innerText = "Invalid credentials";
+                }
+            } catch (error) {
+                console.error("Login error:", error);
+            }
+        }
+
+        function logout() {
+            authToken = null;
+            window.location.reload();
+        }
+
+        async function loadTasks() {
+            // TODO: We need to implement this using the Token.
+            console.log("Loading tasks with token: " + authToken);
+        }
+
+        async function addTask() {
+            // TODO: Implement adding tasks
+        }
+    </script>
+</body>
+</html>
