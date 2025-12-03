@@ -26,7 +26,7 @@ public class JwtService {
             this.jwtSecret = loadSecretKey();
         } catch (Exception e) {
             // If the file is missing (in tests), use a dummy key
-            this.jwtSecret = "test-secret-key-for-unit-tests-only-1234567890";
+            this.jwtSecret = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
         }
     }
 
