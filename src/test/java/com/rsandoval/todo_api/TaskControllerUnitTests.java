@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rsandoval.todo_api.controller.TaskController;
 import com.rsandoval.todo_api.model.Task;
 import com.rsandoval.todo_api.repository.TaskRepository;
+import com.rsandoval.todo_api.service.JwtService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -24,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 // Testing only the TaskController
 @WebMvcTest(TaskController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class TaskControllerUnitTests {
 
     // Spring will automatically inject ("autowire") our "fake postman" (MockMvc)
@@ -33,6 +36,12 @@ class TaskControllerUnitTests {
     // Spring will create a mock version of our repository
     @MockitoBean
     private TaskRepository taskRepository;
+
+    @MockitoBean
+    private JwtService jwtService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     void testUpdateTask_ShouldUpdateAndReturnTask() throws Exception{
@@ -53,7 +62,7 @@ class TaskControllerUnitTests {
         savedTask.setCompleted(true);
 
         // Convert the updated data object into a JSON string
-        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper = new ObjectMapper();
         String updatedTaskAsJson = objectMapper.writeValueAsString(updatedTask);
 
         // Stub 1: WHEN findById(1L) is called, THEN return our existingTask
@@ -105,7 +114,7 @@ class TaskControllerUnitTests {
         savedTask.setCompleted(false);
 
         // Convert 'newTask' object into a JSON string
-        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper = new ObjectMapper();
         String newTaskAsJson = objectMapper.writeValueAsString(newTask);
 
         // When taskRepository.save() is called with *any* Task object THEN return our 'savedTask'
