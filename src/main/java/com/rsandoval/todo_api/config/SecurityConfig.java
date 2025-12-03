@@ -1,6 +1,5 @@
 package com.rsandoval.todo_api.config;
 
-import com.rsandoval.todo_api.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -1,14 +1,19 @@
 package com.rsandoval.todo_api;
 
 import com.rsandoval.todo_api.model.Task;
+import com.rsandoval.todo_api.model.User;
 import com.rsandoval.todo_api.repository.TaskRepository;
+import com.rsandoval.todo_api.repository.UserRepository;
+import com.rsandoval.todo_api.service.JwtService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -26,10 +31,42 @@ public class TaskApiIntegrationTests {
     @Autowired
     private TaskRepository taskRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    private HttpHeaders getAuthHeaders() {
+        User user = new User();
+        user.setUsername("testuser");
+        user.setPassword(passwordEncoder.encode("password"));
+        user.setRole("USER");
+
+        userRepository.save(user);
+
+        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+                .username(user.getUsername())
+                .password(user.getPassword())
+                .roles(user.getRole())
+                .build();
+
+        String token = jwtService.generateToken(userDetails);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        headers.add("Content-Type", "application/json");
+        return headers;
+    }
+
     // 4. This helper method cleans the database after every test, so our tests don't interfere with each other.
     @AfterEach
     void tearDown() {
         taskRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
@@ -38,10 +75,14 @@ public class TaskApiIntegrationTests {
         Task task = new Task();
         task.setDescription("Watch new PTA movie");
 
+        // Wrap the task AND the headers in an HttpEntity
+        HttpEntity<Task> request = new HttpEntity<>(task, getAuthHeaders());
+
         // -- ACT -- Use the real HTTP client to send a real POST request
-        ResponseEntity<Task> response = restTemplate.postForEntity(
+        ResponseEntity<Task> response = restTemplate.exchange(
                 "/api/tasks",
-                task,
+                HttpMethod.POST,
+                request,
                 Task.class
         );
 
@@ -70,8 +111,12 @@ public class TaskApiIntegrationTests {
         task2.setDescription("Test task 2");
         taskRepository.save(task2);
 
-        ResponseEntity<Task[]> response = restTemplate.getForEntity(
+        HttpEntity<String> request = new HttpEntity<>(null, getAuthHeaders());
+
+        ResponseEntity<Task[]> response = restTemplate.exchange(
                 "/api/tasks",
+                HttpMethod.GET,
+                request,
                 Task[].class
         );
 
