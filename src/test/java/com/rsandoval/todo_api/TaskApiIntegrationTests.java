@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -125,5 +124,41 @@ public class TaskApiIntegrationTests {
         assertThat(response.getBody().length).isEqualTo(2);
         assertThat(response.getBody()[0].getDescription()).isEqualTo("Test task 1");
         assertThat(response.getBody()[1].getDescription()).isEqualTo("Test task 2");
+    }
+
+    @Test
+    void testGetTasksByStatus_ShouldReturnCompletedTasks() {
+        Task incompleteTask = new Task();
+        incompleteTask.setDescription("Fix car");
+        incompleteTask.setCompleted(false);
+        taskRepository.save(incompleteTask);
+
+        Task completedTask1 = new Task();
+        completedTask1.setDescription("Buy milk");
+        completedTask1.setCompleted(true);
+        taskRepository.save(completedTask1);
+
+        Task completedTask2 = new Task();
+        completedTask2.setDescription("Walk the dog");
+        completedTask2.setCompleted(true);
+        taskRepository.save(completedTask2);
+
+        HttpEntity<String> request = new HttpEntity<>(null, getAuthHeaders());
+
+        ResponseEntity<Task[]> response = restTemplate.exchange(
+                "/api/tasks/search?completed=true",
+                HttpMethod.GET,
+                request,
+                Task[].class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().length).isEqualTo(2);
+        assertThat(response.getBody()[0].getDescription()).isEqualTo("Buy milk");
+        assertThat(response.getBody()[1].getDescription()).isEqualTo("Walk the dog");
+        assertThat(response.getBody())
+                .extracting(Task::isCompleted)
+                .containsOnly(true);
     }
 }
