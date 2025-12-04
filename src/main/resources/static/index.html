@@ -129,7 +129,30 @@
         }
 
         async function addTask() {
-            // TODO: Implement adding tasks
+            const descInput = document.getElementById('new-task-desc');
+            const description = descInput.value;
+            if (!description) return;
+
+            try {
+                const response = await fetch(`${API_URL}/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        description: description,
+                        completed: false
+                    })
+                });
+
+                if (response.ok) {
+                    descInput.value = ''; // Clear input
+                    loadTasks(); // Refresh List
+                }
+            } catch (error) {
+                console.error("Error adding task:", error);
+            }
         }
     </script>
 </body>
