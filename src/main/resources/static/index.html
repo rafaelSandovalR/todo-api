@@ -154,6 +154,16 @@
                 console.error("Error adding task:", error);
             }
         }
+
+        async function deleteTask(id) {
+            if (!confirm("Delete this task?")) return;
+
+            await fetch(`${API_URL}/tasks/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            loadTasks();
+        }
     </script>
 </body>
 </html>
