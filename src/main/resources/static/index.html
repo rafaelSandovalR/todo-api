@@ -50,6 +50,7 @@
 
     <script>
         let authToken = null;
+        let currentTasks = [];
         const API_URL = 'http://localhost:8080/api';
 
         async function login() {
@@ -99,6 +100,7 @@
 
                 if (response.ok) {
                     const tasks = await response.json();
+                    currentTasks = tasks;
                     renderTasks(tasks);
                 } else {
                     console.error("Failed to load tasks:", response.status);
@@ -116,12 +118,17 @@
             tasks.forEach(task => {
                 const div = document.createElement('div');
                 div.className = 'task';
+
+                const checked = task.completed ? 'checked' : '';
                 // Simple HTML for each task
                 div.innerHTML = `
-                    <span>
-                        ${task.completed ? '✅' : '⬜'}
-                        <strong>${task.description}</strong>
-                    </span>
+                    <div style="display: flex; align-items: center; gap: 10px;"">
+                        <input type="checkbox" ${checked} onclick="toggleTask(${task.id})">
+
+                        <span style="${task.completed ? 'text-decoration: line-through; color: gray;' : ''}">
+                            ${task.description}
+                        </span>
+                    </div>
                     <button onclick="deleteTask(${task.id})" style="color:red; border:none; background:none;">X</button>
                 `;
                 listDiv.appendChild(div);
@@ -163,6 +170,30 @@
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
             loadTasks();
+        }
+
+        async function toggleTask(id) {
+            const task = currentTasks.find(t => t.id === id);
+            if (!task) return;
+
+            try {
+                await fetch(`${API_URL}/tasks/${id}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        description: task.description,
+                        completed: !task.completed
+                    })
+                });
+
+                loadTasks();
+
+            } catch (error) {
+                console.error("Error updating task:", error);
+            }
         }
     </script>
 </body>
