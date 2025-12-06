@@ -3,6 +3,7 @@ package com.rsandoval.todo_api.controller;
 import com.rsandoval.todo_api.model.Task;
 import com.rsandoval.todo_api.exception.TaskNotFoundException;
 import com.rsandoval.todo_api.repository.TaskRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,11 @@ public class TaskController {
     // Handle GET requests to "/api/tasks"
     @GetMapping
     public List<Task> getAllTasks(){
-        return taskRepository.findAll();
+        return taskRepository
+                .findAll(Sort.by(
+                    Sort.Order.asc("completed"),
+                    Sort.Order.asc("id")
+                ));
     }
 
     @GetMapping("/{id}")
