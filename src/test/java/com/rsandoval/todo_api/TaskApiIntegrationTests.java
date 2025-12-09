@@ -39,18 +39,22 @@ public class TaskApiIntegrationTests {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private HttpHeaders getAuthHeaders() {
-        User user = new User();
-        user.setUsername("testuser");
-        user.setPassword(passwordEncoder.encode("password"));
-        user.setRole("USER");
+    private User testUser;
 
-        userRepository.save(user);
+    private HttpHeaders getAuthHeaders() {
+
+        if (testUser == null) {
+            testUser = new User();
+            testUser.setUsername("testuser");
+            testUser.setPassword(passwordEncoder.encode("password"));
+            testUser.setRole("USER");
+            testUser = userRepository.save(testUser);
+        }
 
         UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUsername())
-                .password(user.getPassword())
-                .roles(user.getRole())
+                .username(testUser.getUsername())
+                .password(testUser.getPassword())
+                .roles(testUser.getRole())
                 .build();
 
         String token = jwtService.generateToken(userDetails);
@@ -102,12 +106,17 @@ public class TaskApiIntegrationTests {
 
     @Test
     void testGetAllTasks_ShouldReturnAllTasks() {
+        // Initialize 'testuser'
+        HttpHeaders headers = getAuthHeaders();
+
         Task task1 = new Task();
         task1.setDescription("Test task 1");
+        task1.setUser(testUser);
         taskRepository.save(task1);
 
         Task task2 = new Task();
         task2.setDescription("Test task 2");
+        task2.setUser(testUser);
         taskRepository.save(task2);
 
         HttpEntity<String> request = new HttpEntity<>(null, getAuthHeaders());
@@ -128,19 +137,24 @@ public class TaskApiIntegrationTests {
 
     @Test
     void testGetTasksByStatus_ShouldReturnCompletedTasks() {
+        HttpHeaders headers = getAuthHeaders();
+
         Task incompleteTask = new Task();
         incompleteTask.setDescription("Fix car");
         incompleteTask.setCompleted(false);
+        incompleteTask.setUser(testUser);
         taskRepository.save(incompleteTask);
 
         Task completedTask1 = new Task();
         completedTask1.setDescription("Buy milk");
         completedTask1.setCompleted(true);
+        completedTask1.setUser(testUser);
         taskRepository.save(completedTask1);
 
         Task completedTask2 = new Task();
         completedTask2.setDescription("Walk the dog");
         completedTask2.setCompleted(true);
+        completedTask2.setUser(testUser);
         taskRepository.save(completedTask2);
 
         HttpEntity<String> request = new HttpEntity<>(null, getAuthHeaders());
