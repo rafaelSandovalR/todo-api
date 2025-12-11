@@ -27,6 +27,7 @@ pipeline {
             steps {
                 // Force cleanup of any leftovers from previous failed runs
                 // '|| true' ensures the pipeline doesn't fail if there is nothing to clean
+                sh 'docker rm -f my-post-gre-db || true'
                 sh 'docker-compose down -v || true'
 
                 // Start fresh build (db only required for integration test)
