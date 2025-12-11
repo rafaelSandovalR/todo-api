@@ -25,7 +25,11 @@ pipeline {
                 SPRING_DATASOURCE_URL = "jdbc:postgresql://host.docker.internal:5432/${TEST_DB_NAME}"
             }
             steps {
-                // Start Build (db only required for integration test)
+                // Force cleanup of any leftovers from previous failed runs
+                // '|| true' ensures the pipeline doesn't fail if there is nothing to clean
+                sh 'docker-compose down -v || true'
+
+                // Start fresh build (db only required for integration test)
                 sh 'docker-compose up -d db'
                 sh 'sleep 10'
                 sh "docker exec my-postgres-db psql -U postgres -d postgres -c 'CREATE DATABASE ${TEST_DB_NAME};'"
@@ -57,7 +61,7 @@ pipeline {
             post {
                 always {
                     sh 'docker logout'
-                    sh 'docker-compose down'
+                    sh 'docker-compose down -v'
                 }
             }
         }
