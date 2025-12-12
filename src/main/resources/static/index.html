@@ -31,7 +31,19 @@
         <input type="text" id="username" placeholder="Username" />
         <input type="password" id="password" placeholder="Password" />
         <button onclick="login()">Log In</button>
-        <p id="login=error" class="error"></p>
+        <p id="login-error" class="error"></p>
+
+        <p>Need an account? <a href="#" onclick="showRegister()">Register here</a></p>
+    </div>
+
+    <div id="register-section" class="hidden">
+        <h2>Create Account</h2>
+        <input type="text" id="reg-username" placeholder="Choose Username" />
+        <input type="password" id="reg-password" placeholder="Choose Password" />
+        <button onclick="register()">Sign Up</button>
+        <button onclick="showLogin()" style="background-color: #ccc;">Back to Login</button>
+
+        <p id="reg-error" style="color: red;"></p>
     </div>
 
     <div id="app-section" class="hidden">
@@ -77,6 +89,47 @@
                 }
             } catch (error) {
                 console.error("Login error:", error);
+            }
+        }
+
+        function showRegister() {
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('register-section').classList.remove('hidden');
+            document.getElementById('reg-error').innerText = '';
+        }
+
+        function showLogin() {
+            document.getElementById('register-section').classList.add('hidden');
+            document.getElementById('login-section').classList.remove('hidden');
+            document.getElementById('login-error').innerText = '';
+        }
+
+        async function register() {
+            const username = document.getElementById('reg-username').value;
+            const password = document.getElementById('reg-password').value;
+
+            if (!username || !password) {
+                document.getElementById('reg-error').innerText = "Usename and password required";
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    alert("Registration successful! Please log in.");
+                    showLogin();
+                } else {
+                    const msg = await response.text();
+                    document.getElementById('reg-error').innerText = "Error: " + msg;
+                }
+            } catch (error) {
+                console.error("Registration error:", error);
+                document.getElementById('reg-error').innerText = "Network error occurred.";
             }
         }
 
