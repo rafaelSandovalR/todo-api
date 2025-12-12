@@ -2,7 +2,7 @@
 
 # Full-Stack Secure To-Do App
 
-This is a complete, full-stack application featuring a secure REST API backend, a persistent database, and a responsive frontend UI. It is built with professional DevOps standards, including containerization and a fully automated CI/CD pipeline.
+This is a complete, full-stack application featuring a secure REST API backend, a persistent database, and a responsive frontend UI, **fully deployed and accessible on the cloud** It is built with professional DevOps standards, including containerization and a fully automated CI/CD pipeline.
 
 The application enforces **Multi-Tenancy**, ensuring that every user has their own private list of tasks.
 
@@ -11,6 +11,7 @@ The application enforces **Multi-Tenancy**, ensuring that every user has their o
 * **Data Ownership:** Users can only view, update, and delete *their own* tasks. Access control is enforced at the controller level.
 * **Full-Stack Integration:** Includes a lightweight HTML/JS frontend served directly by the backend.
 * **CI/CD Pipeline:** Automated testing, building, and Docker image publishing via Jenkins.
+* **Cloud Native:** Deployed on modern cloud infrastructures with a serverless database.
 
 ## Technologies & Skills
 
@@ -20,15 +21,21 @@ The application enforces **Multi-Tenancy**, ensuring that every user has their o
 * **Testing** JUnit 5, Mockito, MockMvc (Unit & Integration Tests)
 * **Security** Spring Security, JWT, BCrypt, Stateless Session Management
 * **DevOps:** Docker, Docker Compose, Jenkins (Pipeline as Code)
-* **Server:** Embedded Tomcat
+* **Cloud & Infrastructure:** Render (PaaS), Neon (Serverless PostgreSQL) 
 
 ## How to Run
 
-This application requires a PostgreSQL database and the Spring Boot API server. The fastest, most reliable way to run the full stack is using **Docker Compose**.
+### Option 1: Live Demo
 
-### Option 1: Quick Start (No Code Required)
+The application is deployed on the cloud and fully functional!
+**[View Live App](https://my-secure-todo-app.onrender.com)**
+*(Note: Hosted on Render Free Tier. It may take ~1 minute to wake up on the first load.)*
 
-You do not need Java, Maven, or the source code installed. You only need [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+---
+
+### Option 2: Quick Start (Docker Compose)
+
+The fastest way to run the full stack locally (Database + API) without installing Java. You only need [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 
 1. Create a folder and create a file named **`docker-compose.yml`**.
 2. Paste the following content into it:
@@ -75,7 +82,7 @@ You do not need Java, Maven, or the source code installed. You only need [Docker
 
 ---
 
-### Option 2: Developer Setup (Run from Source)
+### Option 3: Developer Setup (Run from Source)
 
 Use this method if you want to modify the code or run the application inside IntelliJ IDEA.
 
