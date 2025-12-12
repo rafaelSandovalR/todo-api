@@ -9,6 +9,9 @@ WORKDIR /workspace/app
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
 
+# Ensure the script is executable on Linux
+RUN chmod +x mvnw
+
 # Download all the dependencies
 RUN ./mvnw dependency:go-offline
 
